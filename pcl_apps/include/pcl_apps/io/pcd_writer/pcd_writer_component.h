@@ -57,6 +57,7 @@ namespace pcl_apps
     PCL_APPS_PCD_WRITER_PUBLIC
     explicit PcdWriterComponent(const rclcpp::NodeOptions & options);
   private:
+    void pointcloudCallback(const sensor_msgs::msg::PointCloud2::SharedPtr msg);
     rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr sub_;
     std::string input_topic_;
     bool pointcloud_recieved_;

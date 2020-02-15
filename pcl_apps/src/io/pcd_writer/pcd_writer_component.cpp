@@ -8,13 +8,8 @@ namespace pcl_apps
         declare_parameter("input_topic",get_name() + std::string("/input"));
         get_parameter("input_topic",input_topic_);
         pointcloud_recieved_ = false;
-        auto callback =
-        [this](const typename sensor_msgs::msg::PointCloud2::SharedPtr msg) -> void
-        {
-            pcl::fromROSMsg(*msg, cloud_);
-            pointcloud_recieved_ = true;
-        };
-        sub_ = create_subscription<sensor_msgs::msg::PointCloud2>(input_topic_, 10, callback);
+        sub_ = this->create_subscription<sensor_msgs::msg::PointCloud2>(
+            input_topic_, 10, std::bind(&PcdWriterComponent::pointcloudCallback, this, std::placeholders::_1));
         auto write_pcd_callback = 
         [this](const std::shared_ptr<rmw_request_id_t> request_header,
         const std::shared_ptr<pcl_apps_msgs::srv::WritePcd::Request> request,
@@ -62,6 +57,12 @@ namespace pcl_apps
         };
         std::string service_name = get_name() + std::string("/write_pcd");
         server_ = create_service<pcl_apps_msgs::srv::WritePcd>(service_name,write_pcd_callback);
+    }
+
+    void PcdWriterComponent::pointcloudCallback(const sensor_msgs::msg::PointCloud2::SharedPtr msg)
+    {
+        pcl::fromROSMsg(*msg, cloud_);
+        pointcloud_recieved_ = true;
     }
 }
 
